@@ -1,49 +1,117 @@
 <template>
-  <div class="center-col">
-    <h1>{{ msg }}</h1>
-
-    <p>
-      基于
-      <a href="https://pywebview.flowrl.com" target="_blank">Pywebview</a>
-      |
-      <a href="https://pyinstaller.readthedocs.io" target="_blank">PyInstaller</a>
-      |
-      <a href="https://v3.cn.vuejs.org" target="_blank">Vue3</a>
-      框架，构建macOS和windows平台的客户端。
-    </p>
-
-    <p>本应用的业务层采用<b>本地Python</b>或调用<b>远程API</b>等方式</p>
-    <p>视图层可使用任意一款你喜欢的前端框架，比如 <b>Vue</b>、<b>React</b>、<b>Angular</b>、<b>HTML</b> 等</p>
-
-    <p>用户名：{{ creator }}</p>
-    <button v-if="creator == 'pangao'" type="button" @click="getOwner">获取本机用户名</button>
-
-    <!-- 检测更新 -->
-    <BtnUpdate class="mt10" />
+  
+  <div class="mainView">
+    
+      <router-view ></router-view>
   </div>
+
 </template>
 
-<script setup>
-import BtnUpdate from './BtnUpdate.vue'
-import { ref } from 'vue'
+<script>
+  import { eventBus } from '../event-bus.js';
+  
+  export default {
+    data() {
+    return {
+      
+      startTime:[],
+      startData:[],
+    }
+  },
 
-defineProps({
-  msg: String
-})
+  provide(){
+    return {
+      startTime:this.startTime,
+      startData:this.startData,
+    }
+  },
 
-let creator = ref('pangao')
+  beforeDestroy() {
+    this.startTime = [];
+    this.startData = [];
+  },
 
-const getOwner = () => {
-  // 获取本机用户名
-  window.pywebview.api.system_getOwner().then((res) => {
-    creator.value = res
-  })
-}
+  mounted() {
+    // eventBus.on('write', message => {
+      
+    //   this.$router.push('/write-page')
+    // });
+    eventBus.on('writeshelf', message => {
+      
+      this.$router.push({name: 'writeShelf',});
+    });
+    eventBus.on('data_statistics', message => {
+      
+      this.$router.push({name: 'dataStatistics',});
+    });
+    // eventBus.on('read', message => {
+      
+    //   this.$router.push('/read-page')
+    // });
+
+
+    eventBus.on('start-write',book_data => {
+      let index = this.startData.findIndex(item => item.id === book_data.id);
+      if (index === -1){
+
+        this.startData.push(book_data);
+      }
+
+      let index2 = this.startTime.findIndex(item => item.id === book_data.id);
+      if (index2 === -1){
+        let now_time = new Date();
+        this.startTime.push({
+          id: book_data.id,
+          start_time:now_time
+        });
+      }
+
+    });
+  },
+    methods: {
+      // writePage() {
+      //   this.isshow = false
+      //   // 使用 router.push 进行页面跳转
+      //   this.$router.push('/write-page')
+        
+      // },
+
+      // readPage() {
+      //   this.isshow = false
+      //   // 使用 router.push 进行页面跳转
+      //   this.$router.push('/read-page')
+        
+      // }
+
+    }
+  }
 
 </script>
 
+
 <style scoped>
-a {
-  color: #42b983;
+
+/* a {
+  color: #b94254;
+} */
+.start {
+  /* background-color: rgb(177, 167, 191); */
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  height: 100vh; /* 或者设置一个固定的高度 */
 }
+
+.mainView {
+  position: relative;
+  background-color: rgb(12, 242, 242);
+}
+.page-turn{
+  /* background-color: #060606; */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* overflow: auto; */
+}
+
 </style>

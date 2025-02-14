@@ -20,6 +20,7 @@ from pyapp.config.config import Config
 from pyapp.db.db import DB
 
 
+
 cfg = Config()    # 配置
 db = DB()    # 数据库类
 api = API()    # 本地接口
@@ -32,15 +33,18 @@ def on_shown():
     db.init()    # 初始化数据库
 
 
-def on_loaded():
+def on_loaded(window):
     # print('DOM加载完毕')
-    pass
+    script = """
+        window.onbeforeunload = function() {
+            return '你确定要离开吗？';
+        };
+    """
+    window.evaluate_js(script)
 
 
 def on_closing():
-    # print('程序关闭')
     pass
-
 
 def WebViewApp(ifCef=False):
 
@@ -69,15 +73,15 @@ def WebViewApp(ifCef=False):
     minHeight = int(initHeight / 2)
 
     # 创建窗口
-    window = webview.create_window(title=Config.appName, url=template, js_api=api, width=initWidth, height=initHeight, min_size=(minWidth, minHeight))
+    window = webview.create_window(confirm_close=False, frameless=False,title=Config.appName, url=template, js_api=api, width=initWidth, height=initHeight, min_size=(minWidth, minHeight))
 
     # 获取窗口实例
     api.setWindow(window)
 
     # 绑定事件
-    window.events.shown += on_shown
+    # window.events.shown += on_shown
     window.events.loaded += on_loaded
-    window.events.closing += on_closing
+    # window.events.closing += on_closing
 
     # CEF模式
     guiCEF = 'cef' if ifCef else None
@@ -88,10 +92,12 @@ def WebViewApp(ifCef=False):
 
 if __name__ == "__main__":
 
+    #sys.path.append(r'C:\Users\青衫\AppData\Roaming\Python\Python39\site-packages')
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--cef", action="store_true", dest="if_cef", help="if_cef")
     args = parser.parse_args()
 
-    ifCef = args.if_cef    # 是否开启cef模式
+    ifCef = args.if_cef   # 是否开启cef模式
 
     WebViewApp(ifCef)

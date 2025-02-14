@@ -23,7 +23,7 @@ class Config:
     ##
     # 程序基础配置信息
     ##
-    appName = 'PPX'  # 应用名称
+    appName = '书屋'  # 应用名称
     appNameEN = 'ppx'    # 应用名称-英文（用于生成缓存文件夹，必须是英文）
     appVersion = "V4.1.0"  # 应用版本号
     appDeveloper = "PanGao"  # 应用开发者
